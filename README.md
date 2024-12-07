@@ -1,3 +1,3 @@
-# sharanm.uk
+# sharanmaiya.com
 
 Personal website.
