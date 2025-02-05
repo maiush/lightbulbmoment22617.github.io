@@ -17,7 +17,14 @@
   <header class="title"><h1 style="font-size:42px;">Character Training</h1></header>
   <hr>
   A few held-out examples to vibe-check my character training pipeline, tested with Gemma-2-2b. Have a scroll!
-  <table style="width:98%; border-collapse: collapse; margin: 20px auto;">
+  
+  <div style="text-align: center; margin: 20px 0;">
+    <button id="gemma-button" style="padding: 10px 20px; margin: 0 10px; cursor: pointer; background-color: #4CAF50; color: white; border: none; border-radius: 4px;">gemma-2-2b</button>
+    <button id="llama-button" style="padding: 10px 20px; margin: 0 10px; cursor: pointer; background-color: #008CBA; color: white; border: none; border-radius: 4px;">llama-3.1-8b</button>
+  </div>
+
+  <div id="gemma-table">
+    <table style="width:98%; border-collapse: collapse; margin: 20px auto;">
     <tr>
       <th style="border: 1px solid #ddd; padding: 12px; text-align: left; width: 33.33%;">Prompt</th>
       <th style="border: 1px solid #ddd; padding: 12px; text-align: left; width: 33.33%;">pre- Character Training</th>
@@ -193,6 +200,19 @@
       </td>
     </tr>
   </table>
+  </div>
+
+  <div id="llama-table" style="display: none;">
+    <table style="width:98%; border-collapse: collapse; margin: 20px auto;">
+      <tr>
+        <th style="border: 1px solid #ddd; padding: 12px; text-align: left; width: 33.33%;">Prompt</th>
+        <th style="border: 1px solid #ddd; padding: 12px; text-align: left; width: 33.33%;">pre- Character Training</th>
+        <th style="border: 1px solid #ddd; padding: 12px; text-align: left; width: 33.33%;">post- Character Training</th>
+      </tr>
+      <!-- Empty table structure for future content -->
+    </table>
+  </div>
+
   <footer>
   <hr>
   <div class="links"> <a href="/">Sharan Maiya</a> | <a href="https://x.com/_maiush">Twitter</a> | <a href="https://github.com/maiush">GitHub</a> | <a href="https://www.linkedin.com/in/sharanmaiya/">LinkedIn</a></sub></div>
@@ -207,6 +227,17 @@
     gtag('js', new Date());
     gtag('config', 'G-WQ09G5T99X', { 'anonymize_ip': false });
   }
+
+  // Add table switching functionality
+  document.getElementById('gemma-button').addEventListener('click', function() {
+    document.getElementById('gemma-table').style.display = 'block';
+    document.getElementById('llama-table').style.display = 'none';
+  });
+
+  document.getElementById('llama-button').addEventListener('click', function() {
+    document.getElementById('gemma-table').style.display = 'none';
+    document.getElementById('llama-table').style.display = 'block';
+  });
   </script>
 </body>
 </html>
