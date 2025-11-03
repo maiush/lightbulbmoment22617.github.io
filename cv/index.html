@@ -13,6 +13,20 @@
 </head>
 
 <body class="home">
+  <!-- Particle Background Effect -->
+  <canvas id="particle-canvas"></canvas>
+
+  <!-- Light/Dark Mode Pull Chain Switch -->
+  <div class="theme-switch-wrapper">
+    <div class="pull-chain" id="theme-toggle">
+      <div class="chain"></div>
+      <div class="pull-handle"></div>
+    </div>
+  </div>
+
+  <!-- Lantern Overlay for Extra Dark Mode -->
+  <div class="lantern-overlay" id="lantern-overlay"></div>
+
   <header class="masthead">
   <h1><a href="/">Sharan Maiya</a></h1>
   <p class="tagline"></p>
@@ -30,46 +44,259 @@
   </nav> 
   </header>
   <article class="main">
-  <header class="title"><h1 style="font-size:42px;">CV</h1></header>
-  <hr>
-  <a href="/CV.pdf">pdf</a>
-  <h2 style="font-size:27px;">EDUCATION</h2>
-  <h3 style="margin-bottom:0;">University of Cambridge</h3>
-  PhD Applied Linguistics, <i>Oct 2024 - 2027</i></br>
-  MRes AI for Environmental Risks, <i>Oct 2023 - 2024</i></br>
-  <h3 style="margin-bottom:0;">Imperial College London</h3>
-  MSc Statistics, <i>Oct 2020 - Sep 2021</i></br>
-  <h3 style="margin-bottom:0;">The University of Edinburgh</h3>
-  BSc Computer Science and Mathematics, <i>Sep 2016 - Jun 2020</i></br>
+  <header class="title"><h1>CV</h1></header>
+  <div style="text-align: center; margin-bottom: 2em;">
+    <a href="/CV.pdf" style="font-size: 16px; padding: 8px 16px; border: 1px solid #d1d5db; border-radius: 4px; display: inline-block; transition: all 0.2s ease;">📄 Download PDF</a>
+  </div>
+  
+  <h2>Education</h2>
+  
+  <h3 style="margin-bottom:0.5em;">University of Cambridge</h3>
+  <div style="margin-bottom: 1.5em;">
+    PhD Applied Linguistics, <i>Oct 2024 – 2027</i><br/>
+    MRes AI for Environmental Risks, <i>Oct 2023 – 2024</i>
+  </div>
+  
+  <h3 style="margin-bottom:0.5em;">Imperial College London</h3>
+  <div style="margin-bottom: 1.5em;">
+    MSc Statistics, <i>Oct 2020 – Sep 2021</i>
+  </div>
+  
+  <h3 style="margin-bottom:0.5em;">The University of Edinburgh</h3>
+  <div style="margin-bottom: 1.5em;">
+    BSc Computer Science and Mathematics, <i>Sep 2016 – Jun 2020</i>
+  </div>
 
-  <h2 style="font-size:27px;">RESEARCH + WORK</h2>
-  <a href="https://www.matsprogram.org/">ML Alignment and Theory Scholars</a>, Scholar, <i>Jan 2025 - Mar 2025</i></br>
-  <a href="https://cadenzalabs.org/">Cadenza Labs</a>, Co-Founder and Research Engineer, <i>Aug 2024 - Present</i></br>
-  <a href="https://sparai.org/">Supervised Program for Alignment Research</a>, Student Researcher, <i>Oct 2023 - Jun 2024</i></br>
-  <a href="https://www.cambridgeaisafety.org/">Cambridge AI Safety Hub</a>, Fellowship Facilitator, <i>Winter 2023 and Winter 2024</i></br>
-  University of Edinburgh, Pre-Doctoral Research Assistant, <i>Sep 2021 - Jun 2023</i></br>
+  <h2>Research & Work</h2>
+  
+  <div style="margin-bottom: 1em;">
+    <a href="https://www.matsprogram.org/">ML Alignment and Theory Scholars</a>, Scholar<br/>
+    <i style="color: #6b7280;">Jan 2025 – Present</i>
+  </div>
+  
+  <div style="margin-bottom: 1em;">
+    <a href="https://cadenzalabs.org/">Cadenza Labs</a>, Co-Founder and Research Engineer<br/>
+    <i style="color: #6b7280;">Aug 2024 – Present</i>
+  </div>
+  
+  <div style="margin-bottom: 1em;">
+    <a href="https://sparai.org/">Supervised Program for Alignment Research</a>, Student Researcher<br/>
+    <i style="color: #6b7280;">Oct 2023 – Jun 2024</i>
+  </div>
+  
+  <div style="margin-bottom: 1em;">
+    <a href="https://www.cambridgeaisafety.org/">Cambridge AI Safety Hub</a>, Fellowship Facilitator<br/>
+    <i style="color: #6b7280;">Winter 2023 and Winter 2024</i>
+  </div>
+  
+  <div style="margin-bottom: 1em;">
+    University of Edinburgh, Pre-Doctoral Research Assistant<br/>
+    <i style="color: #6b7280;">Sep 2021 – Jun 2023</i>
+  </div>
 
-  <h2 style="font-size:27px;">PREPRINTS AND PUBLICATIONS</h2>
-  Walter Laurito*, <b>Sharan Maiya</b>*, Gregoire Dhimoila*, Owen Ho Wan Yeung, and Kaarel Hanni. "Cluster-Norm for Unsupervised Probing of Knowledge". 
-  <i>EMNLP Main</i>, 2024, <a href="https://aclanthology.org/2024.emnlp-main.780/">https://aclanthology.org/2024.emnlp-main.780/</a>.
-  </br></br>
-  D K Arvind* and <b>S Maiya</b>*. "Sensor data-driven analysis for identification of causal relationships between
-  exposure to air pollution and respiratory rate in asthmatics". <i>arXiv</i>, 2022, <a href="http://arxiv.org/abs/2301.06300">
-  http://arxiv.org/abs/2301.06300</a>.
-  </br></br>
-  D K Arvind, <b>S Maiya</b>, and P Sedeno. "Identifying causal relationships in time series data from a pair of wearable
-  sensors". <i>IEEE 17th International Conference on Wearable and Implantable Body Sensor Networks</i>, 2021, <a href="https://doi.org/10.1109/BSN51625.2021.9507030">
-  https://doi.org/10.1109/BSN51625.2021.9507030</a>.
-  </br></br>
-  A Miller, D Miron, and <b>S Maiya</b>."GraphDraw - A Tool for the Representation of Graphs Using Inherent
-  Symmetry". <i>Proceedings of The First International Conference on Symmetry</i>, 2018, <a href=" https://doi.org/10.3390/proceedings2010086">
-  https://doi.org/10.3390/proceedings2010086</a>.
+  <h2>Papers</h2>
+
+  <div style="margin-bottom: 1.5em;">
+    <b>Sharan Maiya</b>, Henning Bartsch, Nathan Lambert, and Evan Hubinger. "Open Character Training: Shaping the Persona of AI Assistants through Constitutional AI". <i>preprint</i>, 2025. <a href="/character">Link</a>
+  </div>
+
+  <div style="margin-bottom: 1.5em;">
+    <b>Sharan Maiya</b>, Yinhong Liu, Ramit Debnath, and Anna Korhonen. "Improving Preference Extraction in LLMs By Identifying Latent Knowledge Through Classifying Probes". <i>ACL</i>, 2025. <a href="https://aclanthology.org/2025.acl-long.444/">Link</a>
+  </div>
+  
+  <div style="margin-bottom: 1.5em;">
+    Walter Laurito*, <b>Sharan Maiya</b>*, Gregoire Dhimoila*, Owen Ho Wan Yeung, and Kaarel Hanni. "Cluster-Norm for Unsupervised Probing of Knowledge". <i>EMNLP</i>, 2024. <a href="https://aclanthology.org/2024.emnlp-main.780/">Link</a>
+  </div>
 
   <footer>
   <hr>
   <div class="links"> <a href="/">Sharan Maiya</a> | <a href="https://x.com/_maiush">Twitter</a> | <a href="https://github.com/maiush">GitHub</a> | <a href="https://www.linkedin.com/in/sharanmaiya/">LinkedIn</a></sub></div>
   </footer>
   </article>
+  
+  <!-- Particle Effect Script -->
+  <script>
+    // Subtle floating particle effect
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Set canvas size
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    
+    // Particle system
+    const particles = [];
+    const particleCount = 45;
+    
+    class Particle {
+      constructor() {
+        this.reset();
+        // Start at random positions for initial render
+        this.y = Math.random() * canvas.height;
+      }
+      
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = -10;
+        this.size = Math.random() * 2 + 0.8; // 0.8 to 2.8px
+        this.speedY = Math.random() * 0.4 + 0.15; // Very slow fall
+        this.speedX = (Math.random() - 0.5) * 0.4; // Gentle drift
+        this.opacity = Math.random() * 0.5 + 0.2; // 0.2 to 0.7
+        // Add some gentle oscillation
+        this.angle = Math.random() * Math.PI * 2;
+        this.angleSpeed = Math.random() * 0.01 + 0.005;
+        this.drift = Math.random() * 20 + 10;
+      }
+      
+      update() {
+        this.y += this.speedY;
+        this.angle += this.angleSpeed;
+        this.x += this.speedX + Math.sin(this.angle) * 0.1;
+        
+        // Reset if particle goes off screen
+        if (this.y > canvas.height + 10) {
+          this.reset();
+        }
+        if (this.x < -10 || this.x > canvas.width + 10) {
+          this.x = Math.random() * canvas.width;
+        }
+      }
+      
+      draw() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        let color;
+        
+        // Different subtle colors for each theme
+        if (currentTheme === 'extra-dark') {
+          color = `rgba(200, 200, 255, ${this.opacity * 0.6})`;
+        } else if (currentTheme === 'dark') {
+          color = `rgba(150, 180, 220, ${this.opacity})`;
+        } else {
+          color = `rgba(100, 120, 150, ${this.opacity})`;
+        }
+        
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    
+    // Initialize particles
+    for (let i = 0; i < particleCount; i++) {
+      particles.push(new Particle());
+    }
+    
+    // Animation loop
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      particles.forEach(particle => {
+        particle.update();
+        particle.draw();
+      });
+      
+      requestAnimationFrame(animate);
+    }
+    
+    animate();
+  </script>
+  
+  <!-- Theme Toggle Script -->
+  <script>
+    // Theme cycle order: light → dark → extra-dark → light
+    const themes = ['light', 'dark', 'extra-dark'];
+    
+    // Initialize theme from localStorage or default to light
+    (function() {
+      const currentTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', currentTheme);
+      
+      // Activate lantern overlay if extra-dark
+      if (currentTheme === 'extra-dark') {
+        setTimeout(() => {
+          document.getElementById('lantern-overlay').classList.add('active');
+        }, 100);
+      }
+    })();
+
+    // Lantern/spotlight effect for extra-dark mode
+    const lanternOverlay = document.getElementById('lantern-overlay');
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    
+    function updateSpotlight(e) {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      const x = (mouseX / window.innerWidth) * 100;
+      const y = (mouseY / window.innerHeight) * 100;
+      document.documentElement.style.setProperty('--cursor-x', x + '%');
+      document.documentElement.style.setProperty('--cursor-y', y + '%');
+    }
+    
+    // Theme toggle functionality with pull animation
+    const themeToggle = document.getElementById('theme-toggle');
+    let isAnimating = false;
+
+    themeToggle.addEventListener('click', function(e) {
+      if (isAnimating) return;
+      
+      isAnimating = true;
+      
+      // Add pulling class for animation
+      this.classList.add('pulling');
+      
+      // Wait for pull down animation
+      setTimeout(() => {
+        // Cycle to next theme
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const currentIndex = themes.indexOf(currentTheme);
+        const newIndex = (currentIndex + 1) % themes.length;
+        const newTheme = themes[newIndex];
+        
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        
+        // Handle extra-dark mode spotlight
+        if (newTheme === 'extra-dark') {
+          // Set initial position to where the click happened (the pull chain)
+          const x = (e.clientX / window.innerWidth) * 100;
+          const y = (e.clientY / window.innerHeight) * 100;
+          document.documentElement.style.setProperty('--cursor-x', x + '%');
+          document.documentElement.style.setProperty('--cursor-y', y + '%');
+          
+          // Enable mouse tracking
+          document.addEventListener('mousemove', updateSpotlight);
+          // Activate overlay
+          setTimeout(() => {
+            lanternOverlay.classList.add('active');
+          }, 100);
+        } else {
+          // Disable mouse tracking
+          document.removeEventListener('mousemove', updateSpotlight);
+          lanternOverlay.classList.remove('active');
+        }
+        
+        // Remove pulling class to spring back
+        themeToggle.classList.remove('pulling');
+        
+        // Reset animation lock
+        setTimeout(() => {
+          isAnimating = false;
+        }, 150);
+      }, 100);
+    });
+    
+    // Start with spotlight tracking if already in extra-dark mode
+    if (document.documentElement.getAttribute('data-theme') === 'extra-dark') {
+      document.addEventListener('mousemove', updateSpotlight);
+    }
+  </script>
+  
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-WQ09G5T99X"></script>
   <script>
   var doNotTrack = false;

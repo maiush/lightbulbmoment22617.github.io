@@ -23,6 +23,20 @@
 </head>
 
 <body class="home">
+  <!-- Particle Background Effect -->
+  <canvas id="particle-canvas"></canvas>
+
+  <!-- Light/Dark Mode Pull Chain Switch -->
+  <div class="theme-switch-wrapper">
+    <div class="pull-chain" id="theme-toggle">
+      <div class="chain"></div>
+      <div class="pull-handle"></div>
+    </div>
+  </div>
+
+  <!-- Lantern Overlay for Extra Dark Mode -->
+  <div class="lantern-overlay" id="lantern-overlay"></div>
+
   <header class="masthead">
   <h1><a href="/">Sharan Maiya</a></h1>
   <p class="tagline"></p>
@@ -41,13 +55,199 @@
   </nav> 
   </header>
   <article class="main">
-  <header class="title"><h1 style="font-size:42px;">"Blog"</h1></header>
-  TBD
+  <header class="title"><h1>Blog</h1></header>
+  <p style="text-align: center; color: #6b7280; font-style: italic; margin-top: 3em;">
+    Coming soon...
+  </p>
   <footer>
   <hr>
   <div class="links"> <a href="/">Sharan Maiya</a> | <a href="https://x.com/_maiush">Twitter</a> | <a href="https://github.com/maiush">GitHub</a> | <a href="https://www.linkedin.com/in/sharanmaiya/">LinkedIn</a></sub></div>
   </footer>
   </article>
+  
+  <!-- Particle Effect Script -->
+  <script>
+    // Subtle floating particle effect
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Set canvas size
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    
+    // Particle system
+    const particles = [];
+    const particleCount = 45;
+    
+    class Particle {
+      constructor() {
+        this.reset();
+        // Start at random positions for initial render
+        this.y = Math.random() * canvas.height;
+      }
+      
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = -10;
+        this.size = Math.random() * 2 + 0.8; // 0.8 to 2.8px
+        this.speedY = Math.random() * 0.4 + 0.15; // Very slow fall
+        this.speedX = (Math.random() - 0.5) * 0.4; // Gentle drift
+        this.opacity = Math.random() * 0.5 + 0.2; // 0.2 to 0.7
+        // Add some gentle oscillation
+        this.angle = Math.random() * Math.PI * 2;
+        this.angleSpeed = Math.random() * 0.01 + 0.005;
+        this.drift = Math.random() * 20 + 10;
+      }
+      
+      update() {
+        this.y += this.speedY;
+        this.angle += this.angleSpeed;
+        this.x += this.speedX + Math.sin(this.angle) * 0.1;
+        
+        // Reset if particle goes off screen
+        if (this.y > canvas.height + 10) {
+          this.reset();
+        }
+        if (this.x < -10 || this.x > canvas.width + 10) {
+          this.x = Math.random() * canvas.width;
+        }
+      }
+      
+      draw() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        let color;
+        
+        // Different subtle colors for each theme
+        if (currentTheme === 'extra-dark') {
+          color = `rgba(200, 200, 255, ${this.opacity * 0.6})`;
+        } else if (currentTheme === 'dark') {
+          color = `rgba(150, 180, 220, ${this.opacity})`;
+        } else {
+          color = `rgba(100, 120, 150, ${this.opacity})`;
+        }
+        
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    
+    // Initialize particles
+    for (let i = 0; i < particleCount; i++) {
+      particles.push(new Particle());
+    }
+    
+    // Animation loop
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      particles.forEach(particle => {
+        particle.update();
+        particle.draw();
+      });
+      
+      requestAnimationFrame(animate);
+    }
+    
+    animate();
+  </script>
+  
+  <!-- Theme Toggle Script -->
+  <script>
+    // Theme cycle order: light → dark → extra-dark → light
+    const themes = ['light', 'dark', 'extra-dark'];
+    
+    // Initialize theme from localStorage or default to light
+    (function() {
+      const currentTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', currentTheme);
+      
+      // Activate lantern overlay if extra-dark
+      if (currentTheme === 'extra-dark') {
+        setTimeout(() => {
+          document.getElementById('lantern-overlay').classList.add('active');
+        }, 100);
+      }
+    })();
+
+    // Lantern/spotlight effect for extra-dark mode
+    const lanternOverlay = document.getElementById('lantern-overlay');
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    
+    function updateSpotlight(e) {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      const x = (mouseX / window.innerWidth) * 100;
+      const y = (mouseY / window.innerHeight) * 100;
+      document.documentElement.style.setProperty('--cursor-x', x + '%');
+      document.documentElement.style.setProperty('--cursor-y', y + '%');
+    }
+    
+    // Theme toggle functionality with pull animation
+    const themeToggle = document.getElementById('theme-toggle');
+    let isAnimating = false;
+
+    themeToggle.addEventListener('click', function(e) {
+      if (isAnimating) return;
+      
+      isAnimating = true;
+      
+      // Add pulling class for animation
+      this.classList.add('pulling');
+      
+      // Wait for pull down animation
+      setTimeout(() => {
+        // Cycle to next theme
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const currentIndex = themes.indexOf(currentTheme);
+        const newIndex = (currentIndex + 1) % themes.length;
+        const newTheme = themes[newIndex];
+        
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        
+        // Handle extra-dark mode spotlight
+        if (newTheme === 'extra-dark') {
+          // Set initial position to where the click happened (the pull chain)
+          const x = (e.clientX / window.innerWidth) * 100;
+          const y = (e.clientY / window.innerHeight) * 100;
+          document.documentElement.style.setProperty('--cursor-x', x + '%');
+          document.documentElement.style.setProperty('--cursor-y', y + '%');
+          
+          // Enable mouse tracking
+          document.addEventListener('mousemove', updateSpotlight);
+          // Activate overlay
+          setTimeout(() => {
+            lanternOverlay.classList.add('active');
+          }, 100);
+        } else {
+          // Disable mouse tracking
+          document.removeEventListener('mousemove', updateSpotlight);
+          lanternOverlay.classList.remove('active');
+        }
+        
+        // Remove pulling class to spring back
+        themeToggle.classList.remove('pulling');
+        
+        // Reset animation lock
+        setTimeout(() => {
+          isAnimating = false;
+        }, 150);
+      }, 100);
+    });
+    
+    // Start with spotlight tracking if already in extra-dark mode
+    if (document.documentElement.getAttribute('data-theme') === 'extra-dark') {
+      document.addEventListener('mousemove', updateSpotlight);
+    }
+  </script>
+  
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-WQ09G5T99X"></script>
   <script>
   var doNotTrack = false;

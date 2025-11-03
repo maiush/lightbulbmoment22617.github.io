@@ -23,6 +23,20 @@
 </head>
 
 <body class="home">
+  <!-- Particle Background Effect -->
+  <canvas id="particle-canvas"></canvas>
+
+  <!-- Light/Dark Mode Pull Chain Switch -->
+  <div class="theme-switch-wrapper">
+    <div class="pull-chain" id="theme-toggle">
+      <div class="chain"></div>
+      <div class="pull-handle"></div>
+    </div>
+  </div>
+
+  <!-- Lantern Overlay for Extra Dark Mode -->
+  <div class="lantern-overlay" id="lantern-overlay"></div>
+
   <header class="masthead">
   <h1><a href="/">Sharan Maiya</a></h1>
   <p class="tagline"></p>
@@ -41,26 +55,206 @@
   </header>
   <article class="main">
   <header class="title"></header>
-  <p>
-    I&rsquo;m a first year PhD student in the <a href="https://ltl.mmll.cam.ac.uk/">Language Technology Lab</a> at the University of Cambridge, where I work on technical alignment research and evaluations for large language models.
-    I&rsquo;m supervised by <a href="https://sites.google.com/site/annakorhonen/">Anna Korhonen</a>.
-    <br/>
-    <br/>
-    I&rsquo;m also interested in climate change mitigation, and how AI can accelerate research and decision-making in climate science. 
-    I&rsquo;m affiliated with <a href="https://camcid.github.io/index.html">CamCID</a> and <a href="https://climatraces.org/">climaTRACES</a> through my co-supervisor <a href="https://www.arct.cam.ac.uk/staff/dr-ramit-debnath-mphil-phd-cantab">Ramit Debnath</a> and the <a href="https://ai4er-cdt.esc.cam.ac.uk/">AI4ER CDT</a>.
-    <br/>
-    <br/>
-    Currently I&rsquo;m working on benchmarking and building truthfulness-detection methods for large language models as a co-founding research engineer at <a href="https://cadenzalabs.org/">Cadenza Labs</a>. I&rsquo;m also working on post-training with <a href="https://www.linkedin.com/in/ehubinger/">Evan Hubinger</a> in <a href="https://www.matsprogram.org/">MATS</a> 7.0.
-    In a previous life I worked on causal discovery algorithms and targeted causal learning, looking at the health effects of exposure to air pollution.
-    <br/>
-    <br/>
-    A lot of my time is spent thinking about AI alignment, meditation, whatever film I watched yesterday, and how much I miss Scottish tap water, so reach out if you want to talk about any of those (or perhaps about research, I guess). You can do that at sm2783[at]cam[dot]ac[dot]uk or through the links below.
-  </p>
+  
+  <p>I'm a second year PhD student in the <a href="https://ltl.mmll.cam.ac.uk/">Language Technology Lab</a> at the University of Cambridge, where I work on aligning AI assistants. I'm supervised by <a href="https://sites.google.com/site/annakorhonen/">Anna Korhonen</a>.</p>
+
+  <p>I care very deeply that AI goes well, and I think it can go very very well. Fast, raw intelligence can accelerate science and help address global challenges, including climate change, and this is part of what I work on with my co-supervisor <a href="https://www.arct.cam.ac.uk/staff/dr-ramit-debnath-mphil-phd-cantab">Ramit Debnath</a> at the <a href="https://www.collectivedesign.group.cam.ac.uk/">Collective Intelligence & Design Group</a>.</p>
+
+  <p>But intelligence isn't all that, and I think these artifacts we're creating can also help us cultivate wisdom in a way we haven't been able to before. Part of that is teaching AI assistants what it means to be profoundly <b>good</b>: I started working on <i>character training</i> during <a href="https://www.matsprogram.org/">MATS</a> 7.0 with <a href="https://www.alignmentforum.org/users/evhub">Evan Hubinger</a>, and I continue to with <a href="https://natolambert.com/">Nathan Lambert</a>. Check out our recent <a href="/character">paper</a>! This is a very nascent area of research, so get in touch if you'd like to get involved.</p>
+
+  <p>Among my other interests is making AI systems more robust and trustworthy, particularly through interpretability research. One way I'm doing this is at <a href="https://cadenzalabs.org/">Cadenza Labs</a>, where we work on AI truthfulness.</p>
+
+  <p>With the rest of my time I like to sit at new tables (restaurants), sit on the floor (meditate), sit on a train (home to Scotland and better tap water), or sit at a stand (a music one, while holding a saxophone), so reach out to talk about any of those (or about research, I guess). You can do that at <strong>sm2783[at]cam[dot]ac[dot]uk</strong> or through the links below.</p>
+  
   <footer>
   <hr>
   <div class="links"> <a href="/">Sharan Maiya</a> | <a href="https://x.com/_maiush">Twitter</a> | <a href="https://github.com/maiush">GitHub</a> | <a href="https://www.linkedin.com/in/sharanmaiya/">LinkedIn</a></sub></div>
   </footer>
   </article>
+  
+  <!-- Particle Effect Script -->
+  <script>
+    // Subtle floating particle effect
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Set canvas size
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    
+    // Particle system
+    const particles = [];
+    const particleCount = 45;
+    
+    class Particle {
+      constructor() {
+        this.reset();
+        // Start at random positions for initial render
+        this.y = Math.random() * canvas.height;
+      }
+      
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = -10;
+        this.size = Math.random() * 2 + 0.8; // 0.8 to 2.8px
+        this.speedY = Math.random() * 0.4 + 0.15; // Very slow fall
+        this.speedX = (Math.random() - 0.5) * 0.4; // Gentle drift
+        this.opacity = Math.random() * 0.5 + 0.2; // 0.2 to 0.7
+        // Add some gentle oscillation
+        this.angle = Math.random() * Math.PI * 2;
+        this.angleSpeed = Math.random() * 0.01 + 0.005;
+        this.drift = Math.random() * 20 + 10;
+      }
+      
+      update() {
+        this.y += this.speedY;
+        this.angle += this.angleSpeed;
+        this.x += this.speedX + Math.sin(this.angle) * 0.1;
+        
+        // Reset if particle goes off screen
+        if (this.y > canvas.height + 10) {
+          this.reset();
+        }
+        if (this.x < -10 || this.x > canvas.width + 10) {
+          this.x = Math.random() * canvas.width;
+        }
+      }
+      
+      draw() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        let color;
+        
+        // Different subtle colors for each theme
+        if (currentTheme === 'extra-dark') {
+          color = `rgba(200, 200, 255, ${this.opacity * 0.6})`;
+        } else if (currentTheme === 'dark') {
+          color = `rgba(150, 180, 220, ${this.opacity})`;
+        } else {
+          color = `rgba(100, 120, 150, ${this.opacity})`;
+        }
+        
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    
+    // Initialize particles
+    for (let i = 0; i < particleCount; i++) {
+      particles.push(new Particle());
+    }
+    
+    // Animation loop
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      particles.forEach(particle => {
+        particle.update();
+        particle.draw();
+      });
+      
+      requestAnimationFrame(animate);
+    }
+    
+    animate();
+  </script>
+  
+  <!-- Theme Toggle Script -->
+  <script>
+    // Theme cycle order: light → dark → extra-dark → light
+    const themes = ['light', 'dark', 'extra-dark'];
+    
+    // Initialize theme from localStorage or default to light
+    (function() {
+      const currentTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', currentTheme);
+      
+      // Activate lantern overlay if extra-dark
+      if (currentTheme === 'extra-dark') {
+        setTimeout(() => {
+          document.getElementById('lantern-overlay').classList.add('active');
+        }, 100);
+      }
+    })();
+
+    // Lantern/spotlight effect for extra-dark mode
+    const lanternOverlay = document.getElementById('lantern-overlay');
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    
+    function updateSpotlight(e) {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      const x = (mouseX / window.innerWidth) * 100;
+      const y = (mouseY / window.innerHeight) * 100;
+      document.documentElement.style.setProperty('--cursor-x', x + '%');
+      document.documentElement.style.setProperty('--cursor-y', y + '%');
+    }
+    
+    // Theme toggle functionality with pull animation
+    const themeToggle = document.getElementById('theme-toggle');
+    let isAnimating = false;
+
+    themeToggle.addEventListener('click', function(e) {
+      if (isAnimating) return;
+      
+      isAnimating = true;
+      
+      // Add pulling class for animation
+      this.classList.add('pulling');
+      
+      // Wait for pull down animation
+      setTimeout(() => {
+        // Cycle to next theme
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const currentIndex = themes.indexOf(currentTheme);
+        const newIndex = (currentIndex + 1) % themes.length;
+        const newTheme = themes[newIndex];
+        
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        
+        // Handle extra-dark mode spotlight
+        if (newTheme === 'extra-dark') {
+          // Set initial position to where the click happened (the pull chain)
+          const x = (e.clientX / window.innerWidth) * 100;
+          const y = (e.clientY / window.innerHeight) * 100;
+          document.documentElement.style.setProperty('--cursor-x', x + '%');
+          document.documentElement.style.setProperty('--cursor-y', y + '%');
+          
+          // Enable mouse tracking
+          document.addEventListener('mousemove', updateSpotlight);
+          // Activate overlay
+          setTimeout(() => {
+            lanternOverlay.classList.add('active');
+          }, 100);
+        } else {
+          // Disable mouse tracking
+          document.removeEventListener('mousemove', updateSpotlight);
+          lanternOverlay.classList.remove('active');
+        }
+        
+        // Remove pulling class to spring back
+        themeToggle.classList.remove('pulling');
+        
+        // Reset animation lock
+        setTimeout(() => {
+          isAnimating = false;
+        }, 150);
+      }, 100);
+    });
+    
+    // Start with spotlight tracking if already in extra-dark mode
+    if (document.documentElement.getAttribute('data-theme') === 'extra-dark') {
+      document.addEventListener('mousemove', updateSpotlight);
+    }
+  </script>
+  
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-WQ09G5T99X"></script>
   <script>
   var doNotTrack = false;
