@@ -640,7 +640,7 @@ strong {
   position: fixed;
   top: 20px;
   right: 30px;
-  z-index: 1000;
+  z-index: 10000;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -790,17 +790,6 @@ strong {
 
 [data-theme="extra-dark"] #particle-canvas {
   opacity: 0.25;
-}
-
-/* Ensure masthead and main content are above particles */
-.masthead {
-  position: relative;
-  z-index: 10;
-}
-
-.main {
-  position: relative;
-  z-index: 10;
 }
 
 /* ===== EXTRA DARK MODE - LANTERN/SPOTLIGHT EFFECT ===== */
