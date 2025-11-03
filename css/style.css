@@ -271,6 +271,8 @@ body {
   margin-left: -300px;
   padding: 20px 50px 20px 10px;
   float: left;
+  position: relative;
+  z-index: 10;
 }
 
 .main {
@@ -281,6 +283,8 @@ body {
   min-height: calc(100vh - 80px);
   background: var(--bg-secondary);
   box-shadow: -4px 0 12px var(--shadow);
+  position: relative;
+  z-index: 10;
 }
 
 /* Masthead */
