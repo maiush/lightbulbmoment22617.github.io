@@ -1,3 +1,0 @@
-# sharanm.uk
-
-Personal website.
