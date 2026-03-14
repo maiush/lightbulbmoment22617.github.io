@@ -238,24 +238,6 @@ hr {
   border-bottom-color: var(--accent);
 }
 
-.post-nav {
-  display: flex;
-  justify-content: space-between;
-  font-weight: bold;
-}
-
-.nav-next {
-  margin-left: 1em;
-  text-align: right;
-}
-
-.nav-prev {
-  margin-right: 1em;
-}
-
-.comments {
-  margin-top: 20px;
-}
 
 /* Layout */
 
@@ -309,11 +291,6 @@ body {
   color: var(--accent);
 }
 
-.masthead .tagline {
-  font-style: italic;
-  text-align: right;
-  color: var(--text-tertiary);
-}
 
 .masthead .menu {
   margin-right: 20px;
@@ -361,20 +338,11 @@ body {
   color: var(--text-secondary);
 }
 
-.subtitle {
-  font-size: .9em;
-  color: var(--text-tertiary);
-}
 
 .main p {
   margin: 1.2em 0;
 }
 
-/* Footnotes */
-
-.footnotes {
-  font-size: .9em;
-}
 
 /* Tables */
 
@@ -423,27 +391,7 @@ strong {
   color: var(--text-primary);
 }
 
-/**
- * -------------------------------------------------------------------------
- *  Media Queries
- * -------------------------------------------------------------------------
- *
- * The @viewport tag does the same thing as
- *
- *   <meta name="viewport" content="width=device-width">
- *
- * but in the future W3C standard way. The -ms- prefix is required for
- * IE10+ to render responsive styling in Windows 8 "snapped" views;
- * IE10+ does not honour the meta tag.
- */
-
-@-ms-viewport {
-  width: device-width;
-}
-
-@viewport {
-  width: device-width;
-}
+/* Media Queries */
 
 /* Tablet screens and smaller */
 
@@ -476,10 +424,6 @@ strong {
   }
 
   .masthead h1 {
-    text-align: center;
-  }
-
-  .masthead .tagline {
     text-align: center;
   }
 
@@ -591,11 +535,6 @@ strong {
     margin-top: 50px;
     margin-bottom: 0;
   }
-}
-
-/* Landscape phone screens and smaller */
-
-@media screen and (max-width: 720px) {
 }
 
 /* Portrait phone screens */
