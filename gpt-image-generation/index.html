@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GPT Image Generation</title>
+  <link rel="stylesheet" href="/css/fonts.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Optima0, Raleway, Optima, 'Lucida Sans', Calibri, Candara, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: #1a1a1a;
+      background: #fafafa;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===== PASSWORD GATE ===== */
+
+    .password-gate {
+      position: fixed;
+      inset: 0;
+      background: #fafafa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    .password-gate.hidden { display: none; }
+
+    .password-box {
+      text-align: center;
+      max-width: 360px;
+      padding: 40px;
+    }
+
+    .password-box h1 {
+      font-size: 24px;
+      font-weight: 400;
+      margin: 0 0 8px;
+    }
+
+    .password-box p {
+      color: #6b7280;
+      margin: 0 0 24px;
+      font-size: 14px;
+    }
+
+    .password-box input {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 16px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .password-box input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .password-box .error {
+      color: #dc2626;
+      font-size: 14px;
+      margin-top: 8px;
+      min-height: 20px;
+    }
+
+    .password-box button {
+      margin-top: 16px;
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      font-family: inherit;
+      background: #1a1a1a;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .password-box button:hover { background: #333; }
+
+    /* ===== MAIN CONTENT ===== */
+
+    .app { display: none; }
+    .app.visible { display: block; }
+
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 40px 20px 60px;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 400;
+      margin: 0 0 32px;
+      text-align: center;
+    }
+
+    /* ===== FORM ===== */
+
+    .field {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #374151;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 16px;
+      font-family: inherit;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      background: white;
+      color: #1a1a1a;
+      outline: none;
+    }
+
+    input[type="password"] {
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .row .field { flex: 1; }
+
+    /* ===== BUTTONS ===== */
+
+    .btn {
+      display: inline-block;
+      padding: 12px 24px;
+      font-size: 16px;
+      font-family: inherit;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.2s;
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: #1a1a1a;
+      color: white;
+      font-size: 18px;
+      padding: 14px;
+      margin-top: 8px;
+    }
+
+    .btn-primary:hover:not(:disabled) { background: #333; }
+
+    .btn-secondary {
+      background: white;
+      color: #1a1a1a;
+      border: 1px solid #d1d5db;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: #f3f4f6;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .action-buttons .btn { flex: 1; min-width: 140px; text-align: center; }
+
+    /* ===== IMAGE RESULT ===== */
+
+    .result {
+      display: none;
+      margin-top: 32px;
+    }
+
+    .result.visible { display: block; }
+
+    .result img {
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+    }
+
+    /* ===== STATUS & ERRORS ===== */
+
+    .status {
+      text-align: center;
+      padding: 20px;
+      margin-top: 20px;
+      display: none;
+    }
+
+    .status.visible { display: block; }
+
+    .spinner {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      border: 3px solid #e5e7eb;
+      border-top-color: #1a1a1a;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-msg {
+      color: #dc2626;
+      font-size: 14px;
+      text-align: center;
+      margin-top: 12px;
+      min-height: 20px;
+    }
+
+    /* ===== COST ESTIMATE ===== */
+
+    .cost-info {
+      font-size: 13px;
+      color: #6b7280;
+      font-style: italic;
+      text-align: center;
+      margin-top: 24px;
+    }
+
+    /* ===== RESPONSIVE ===== */
+
+    @media screen and (max-width: 480px) {
+      .container { padding: 20px 15px 40px; }
+      h1 { font-size: 22px; }
+      .row { flex-direction: column; gap: 0; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Password Gate -->
+  <div class="password-gate" id="password-gate">
+    <div class="password-box">
+      <h1>GPT Image Generation</h1>
+      <p>This tool is password-protected.</p>
+      <input type="password" id="password-input" placeholder="Enter password" autocomplete="off">
+      <div class="error" id="password-error"></div>
+      <button onclick="checkPassword()">Submit</button>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div class="app" id="app">
+    <div class="container">
+      <h1>GPT Image Generation</h1>
+
+      <div class="field">
+        <label for="api-key">OpenAI API Key</label>
+        <input type="password" id="api-key" placeholder="sk-..." autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label for="participant-id">Participant ID</label>
+        <input type="text" id="participant-id" placeholder="e.g. P001">
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="model">Model</label>
+          <select id="model">
+            <option value="gpt-image-1" selected>gpt-image-1</option>
+            <option value="gpt-image-1-mini">gpt-image-1-mini</option>
+            <option value="gpt-image-1.5">gpt-image-1.5</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="quality">Quality</label>
+          <select id="quality">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="size">Size</label>
+          <select id="size">
+            <option value="1024x1024" selected>Square</option>
+            <option value="1536x1024">Landscape</option>
+            <option value="1024x1536">Portrait</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="prompt">Prompt</label>
+        <textarea id="prompt" placeholder="Describe the image you would like to generate..."></textarea>
+      </div>
+
+      <button class="btn btn-primary" id="generate-btn" onclick="generateImage()" disabled>
+        Generate Image
+      </button>
+
+      <div class="error-msg" id="error-msg"></div>
+
+      <div class="status" id="status">
+        <span class="spinner"></span> Generating image, please wait...
+      </div>
+
+      <div class="result" id="result">
+        <img id="result-image" alt="Generated image">
+        <div class="action-buttons">
+          <button class="btn btn-secondary" onclick="downloadImage()">Download Image</button>
+          <button class="btn btn-secondary" onclick="generateImage()">Re-generate</button>
+          <button class="btn btn-secondary" onclick="exportSession()">Export Session</button>
+        </div>
+      </div>
+
+      <div class="cost-info" id="cost-info">
+        Estimated cost: ~$0.04 per image (medium quality, square)
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== PASSWORD GATE =====
+    const PASSWORD_HASH = '967ee80babbf7c58799b6bbbc134df9536ff1355270f59cb456b281014e70aeb';
+
+    async function sha256(text) {
+      const data = new TextEncoder().encode(text);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function checkPassword() {
+      const input = document.getElementById('password-input').value;
+      const hash = await sha256(input);
+      if (hash === PASSWORD_HASH) {
+        localStorage.setItem('gpt-image-auth', 'true');
+        document.getElementById('password-gate').classList.add('hidden');
+        document.getElementById('app').classList.add('visible');
+      } else {
+        document.getElementById('password-error').textContent = 'Incorrect password.';
+      }
+    }
+
+    // Allow Enter key on password input
+    document.getElementById('password-input').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') checkPassword();
+    });
+
+    // Check if already authenticated
+    if (localStorage.getItem('gpt-image-auth') === 'true') {
+      document.getElementById('password-gate').classList.add('hidden');
+      document.getElementById('app').classList.add('visible');
+    }
+
+    // ===== FORM VALIDATION =====
+    const apiKeyInput = document.getElementById('api-key');
+    const participantInput = document.getElementById('participant-id');
+    const promptInput = document.getElementById('prompt');
+    const generateBtn = document.getElementById('generate-btn');
+
+    function validateForm() {
+      const valid = apiKeyInput.value.trim() && participantInput.value.trim() && promptInput.value.trim();
+      generateBtn.disabled = !valid;
+    }
+
+    apiKeyInput.addEventListener('input', validateForm);
+    participantInput.addEventListener('input', validateForm);
+    promptInput.addEventListener('input', validateForm);
+
+    // Restore API key from sessionStorage
+    const savedKey = sessionStorage.getItem('gpt-image-api-key');
+    if (savedKey) {
+      apiKeyInput.value = savedKey;
+      validateForm();
+    }
+
+    apiKeyInput.addEventListener('change', function() {
+      sessionStorage.setItem('gpt-image-api-key', this.value);
+    });
+
+    // ===== COST ESTIMATE =====
+    const costMap = {
+      'gpt-image-1': {
+        'low-1024x1024': '$0.01', 'low-1536x1024': '$0.01', 'low-1024x1536': '$0.01',
+        'medium-1024x1024': '$0.04', 'medium-1536x1024': '$0.05', 'medium-1024x1536': '$0.05',
+        'high-1024x1024': '$0.17', 'high-1536x1024': '$0.19', 'high-1024x1536': '$0.19'
+      },
+      'gpt-image-1-mini': {
+        'low-1024x1024': '$0.005', 'low-1536x1024': '$0.005', 'low-1024x1536': '$0.005',
+        'medium-1024x1024': '$0.01', 'medium-1536x1024': '$0.01', 'medium-1024x1536': '$0.01',
+        'high-1024x1024': '$0.02', 'high-1536x1024': '$0.02', 'high-1024x1536': '$0.02'
+      },
+      'gpt-image-1.5': {
+        'low-1024x1024': '$0.02', 'low-1536x1024': '$0.02', 'low-1024x1536': '$0.02',
+        'medium-1024x1024': '$0.05', 'medium-1536x1024': '$0.06', 'medium-1024x1536': '$0.06',
+        'high-1024x1024': '$0.19', 'high-1536x1024': '$0.22', 'high-1024x1536': '$0.22'
+      }
+    };
+
+    const modelSelect = document.getElementById('model');
+    const qualitySelect = document.getElementById('quality');
+    const sizeSelect = document.getElementById('size');
+    const costInfo = document.getElementById('cost-info');
+
+    function updateCostEstimate() {
+      const modelCosts = costMap[modelSelect.value] || costMap['gpt-image-1'];
+      const key = qualitySelect.value + '-' + sizeSelect.value;
+      const cost = modelCosts[key] || '~$0.04';
+      costInfo.textContent = 'Estimated cost: ~' + cost + ' per image (' + modelSelect.value + ', ' + qualitySelect.value + ' quality)';
+    }
+
+    modelSelect.addEventListener('change', updateCostEstimate);
+    qualitySelect.addEventListener('change', updateCostEstimate);
+    sizeSelect.addEventListener('change', updateCostEstimate);
+
+    // ===== IMAGE GENERATION =====
+    let currentImageB64 = null;
+    let currentPromptText = null;
+    let currentTimestamp = null;
+
+    async function generateImage() {
+      const apiKey = apiKeyInput.value.trim();
+      const prompt = promptInput.value.trim();
+      const model = document.getElementById('model').value;
+      const quality = qualitySelect.value;
+      const size = sizeSelect.value;
+
+      // UI: show loading, hide previous result
+      generateBtn.disabled = true;
+      generateBtn.textContent = 'Generating...';
+      document.getElementById('status').classList.add('visible');
+      document.getElementById('result').classList.remove('visible');
+      document.getElementById('error-msg').textContent = '';
+
+      try {
+        const response = await fetch('https://api.openai.com/v1/images/generations', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + apiKey,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: model,
+            prompt: prompt,
+            n: 1,
+            size: size,
+            quality: quality,
+            output_format: 'png'
+          })
+        });
+
+        if (!response.ok) {
+          const err = await response.json().catch(function() { return {}; });
+          const msg = err.error && err.error.message ? err.error.message : '';
+
+          if (response.status === 401) {
+            throw new Error('Invalid API key. Please check and try again.');
+          } else if (response.status === 429) {
+            throw new Error('Too many requests. Please wait a moment and try again.');
+          } else if (response.status === 400 && msg.toLowerCase().includes('safety')) {
+            throw new Error('This prompt was blocked by the content policy. Please try a different prompt.');
+          } else if (response.status === 400 && msg.toLowerCase().includes('billing')) {
+            throw new Error('There is a billing issue with this API key. Please check your OpenAI account.');
+          } else {
+            throw new Error(msg || 'Something went wrong (error ' + response.status + '). Please try again.');
+          }
+        }
+
+        const data = await response.json();
+        currentImageB64 = data.data[0].b64_json;
+        currentPromptText = prompt;
+        currentTimestamp = new Date().toISOString();
+
+        // Display image
+        document.getElementById('result-image').src = 'data:image/png;base64,' + currentImageB64;
+        document.getElementById('result').classList.add('visible');
+
+      } catch (err) {
+        if (err.name === 'TypeError' && err.message === 'Failed to fetch') {
+          document.getElementById('error-msg').textContent =
+            'Could not connect to OpenAI. This may be a network or browser restriction. Please check your connection.';
+        } else {
+          document.getElementById('error-msg').textContent = err.message;
+        }
+      } finally {
+        document.getElementById('status').classList.remove('visible');
+        generateBtn.textContent = 'Generate Image';
+        validateForm();
+      }
+    }
+
+    // ===== DOWNLOAD IMAGE =====
+    function downloadImage() {
+      if (!currentImageB64) return;
+      const pid = participantInput.value.trim() || 'unknown';
+      const ts = currentTimestamp.replace(/[:.]/g, '-');
+      const link = document.createElement('a');
+      link.href = 'data:image/png;base64,' + currentImageB64;
+      link.download = pid + '_' + ts + '.png';
+      link.click();
+    }
+
+    // ===== EXPORT SESSION =====
+    function exportSession() {
+      if (!currentImageB64) return;
+      const session = {
+        participant_id: participantInput.value.trim(),
+        timestamp: currentTimestamp,
+        model: document.getElementById('model').value,
+        quality: qualitySelect.value,
+        size: sizeSelect.value,
+        prompt: currentPromptText,
+        image_base64: currentImageB64
+      };
+      const blob = new Blob([JSON.stringify(session, null, 2)], { type: 'application/json' });
+      const pid = participantInput.value.trim() || 'unknown';
+      const ts = currentTimestamp.replace(/[:.]/g, '-');
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = pid + '_' + ts + '_session.json';
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
+  </script>
+</body>
+</html>
