@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tinker Chat</title>
+  <link rel="stylesheet" href="/css/fonts.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Optima0', 'Raleway', Optima, Candara, Calibri, Arial, sans-serif;
+      background: #fafafa;
+      color: #1a1a1a;
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .field input[type="password"] {
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    .container {
+      max-width: 800px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    /* --- Config Section --- */
+    .config-section {
+      flex-shrink: 0;
+      margin-bottom: 16px;
+    }
+
+    .field {
+      margin-bottom: 12px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      color: #374151;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      padding: 8px 12px;
+      font-size: 14px;
+      font-family: inherit;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      background: #fff;
+      color: #1a1a1a;
+      transition: border-color 0.15s;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+    }
+
+    .field .hint {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 3px;
+    }
+
+    .field select:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: #f3f4f6;
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .row .field {
+      flex: 1;
+    }
+
+    /* Collapsible sections */
+    details {
+      margin-bottom: 12px;
+    }
+
+    details summary {
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: #374151;
+      padding: 6px 0;
+      user-select: none;
+    }
+
+    details summary:hover {
+      color: #2563eb;
+    }
+
+    details[open] summary {
+      margin-bottom: 8px;
+    }
+
+    details textarea {
+      width: 100%;
+      padding: 8px 12px;
+      font-size: 14px;
+      font-family: inherit;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      background: #fff;
+      color: #1a1a1a;
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    details textarea:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+    }
+
+    .params-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .params-row .param {
+      flex: 1;
+    }
+
+    .params-row label {
+      display: block;
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 3px;
+    }
+
+    .params-row input {
+      width: 100%;
+      padding: 6px 10px;
+      font-size: 14px;
+      font-family: inherit;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      background: #fff;
+      color: #1a1a1a;
+    }
+
+    .params-row input:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+    }
+
+    /* --- Chat Area --- */
+    .chat-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 300px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+
+    .messages:empty::before {
+      content: "Send a message to start chatting.";
+      display: block;
+      text-align: center;
+      color: #9ca3af;
+      font-size: 14px;
+      margin-top: 40px;
+    }
+
+    .message {
+      margin-bottom: 16px;
+      position: relative;
+    }
+
+    .message:last-child {
+      margin-bottom: 0;
+    }
+
+    .message-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .message-role {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .message-role.user {
+      color: #2563eb;
+    }
+
+    .message-role.assistant {
+      color: #059669;
+    }
+
+    .message-actions {
+      display: flex;
+      gap: 4px;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    .message:hover .message-actions {
+      opacity: 1;
+    }
+
+    .message-actions button {
+      background: none;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-family: inherit;
+      color: #6b7280;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .message-actions button:hover {
+      background: #f3f4f6;
+      color: #374151;
+      border-color: #9ca3af;
+    }
+
+    .message-content {
+      font-size: 15px;
+      line-height: 1.6;
+      padding: 10px 14px;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .message.user-msg .message-content {
+      background: #eff6ff;
+    }
+
+    .message.assistant-msg .message-content {
+      background: #f0fdf4;
+    }
+
+    /* Spinner */
+    .spinner-msg {
+      margin-bottom: 16px;
+    }
+
+    .spinner-msg .message-role {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #059669;
+      margin-bottom: 4px;
+    }
+
+    .spinner-dots {
+      padding: 10px 14px;
+      background: #f0fdf4;
+      border-radius: 8px;
+      display: inline-block;
+    }
+
+    .spinner-dots span {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: #059669;
+      border-radius: 50%;
+      margin: 0 2px;
+      animation: bounce 1.2s infinite;
+    }
+
+    .spinner-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .spinner-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+      30% { transform: translateY(-6px); opacity: 1; }
+    }
+
+    /* Edit mode */
+    .edit-textarea {
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 15px;
+      font-family: inherit;
+      line-height: 1.6;
+      border: 2px solid #2563eb;
+      border-radius: 8px;
+      background: #eff6ff;
+      color: #1a1a1a;
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    .edit-textarea:focus {
+      outline: none;
+    }
+
+    .edit-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .edit-actions button {
+      padding: 4px 14px;
+      font-size: 13px;
+      font-family: inherit;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .edit-actions .save-btn {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+    }
+
+    .edit-actions .save-btn:hover {
+      background: #1d4ed8;
+    }
+
+    .edit-actions .cancel-btn {
+      background: #fff;
+      color: #6b7280;
+      border: 1px solid #d1d5db;
+    }
+
+    .edit-actions .cancel-btn:hover {
+      background: #f3f4f6;
+    }
+
+    /* --- Input Area --- */
+    .input-area {
+      flex-shrink: 0;
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px;
+      border-top: 1px solid #e5e7eb;
+      background: #fafafa;
+    }
+
+    #chat-input {
+      flex: 1;
+      padding: 10px 14px;
+      font-size: 15px;
+      font-family: inherit;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      background: #fff;
+      color: #1a1a1a;
+      resize: none;
+      min-height: 42px;
+      max-height: 150px;
+      line-height: 1.5;
+      overflow-y: auto;
+    }
+
+    #chat-input:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+    }
+
+    #chat-input:disabled {
+      background: #f3f4f6;
+      cursor: not-allowed;
+    }
+
+    #send-btn, #stop-btn {
+      align-self: flex-end;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-family: inherit;
+      font-weight: 500;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    #send-btn {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    #send-btn:hover:not(:disabled) {
+      background: #1d4ed8;
+    }
+
+    #send-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    #stop-btn {
+      background: #dc2626;
+      color: #fff;
+      display: none;
+    }
+
+    #stop-btn:hover {
+      background: #b91c1c;
+    }
+
+    /* --- Bottom Actions --- */
+    .bottom-actions {
+      flex-shrink: 0;
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .bottom-actions button {
+      padding: 8px 16px;
+      font-size: 13px;
+      font-family: inherit;
+      background: #fff;
+      color: #374151;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .bottom-actions button:hover {
+      background: #f3f4f6;
+      border-color: #9ca3af;
+    }
+
+    /* --- Error --- */
+    .error-msg {
+      color: #dc2626;
+      font-size: 13px;
+      margin-top: 8px;
+      display: none;
+    }
+
+    .error-msg.visible {
+      display: block;
+    }
+
+    /* --- Responsive --- */
+    @media (max-width: 600px) {
+      .container {
+        padding: 16px 12px;
+      }
+
+      .row, .params-row {
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .message-actions {
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Tinker Chat</h1>
+
+    <!-- Config Section -->
+    <div class="config-section">
+      <div class="field">
+        <label for="api-key">API Key</label>
+        <input type="password" id="api-key" placeholder="Enter your Tinker API key">
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="model-select">Model</label>
+          <select id="model-select">
+            <optgroup label="Qwen3.5 (Hybrid + Vision)">
+              <option value="Qwen/Qwen3.5-397B-A17B">Qwen3.5-397B-A17B (MoE, Large)</option>
+              <option value="Qwen/Qwen3.5-35B-A3B">Qwen3.5-35B-A3B (MoE, Medium)</option>
+              <option value="Qwen/Qwen3.5-27B">Qwen3.5-27B (Dense, Medium)</option>
+              <option value="Qwen/Qwen3.5-4B">Qwen3.5-4B (Dense, Compact)</option>
+            </optgroup>
+            <optgroup label="Qwen3-VL (Vision)">
+              <option value="Qwen/Qwen3-VL-235B-A22B-Instruct">Qwen3-VL-235B-A22B-Instruct (MoE, Large)</option>
+              <option value="Qwen/Qwen3-VL-30B-A3B-Instruct">Qwen3-VL-30B-A3B-Instruct (MoE, Medium)</option>
+            </optgroup>
+            <optgroup label="Qwen3 (Instruction)">
+              <option value="Qwen/Qwen3-235B-A22B-Instruct-2507">Qwen3-235B-A22B-Instruct-2507 (MoE, Large)</option>
+              <option value="Qwen/Qwen3-30B-A3B-Instruct-2507">Qwen3-30B-A3B-Instruct-2507 (MoE, Medium)</option>
+              <option value="Qwen/Qwen3-4B-Instruct-2507">Qwen3-4B-Instruct-2507 (Dense, Compact)</option>
+            </optgroup>
+            <optgroup label="Qwen3 (Hybrid / Base)">
+              <option value="Qwen/Qwen3-30B-A3B">Qwen3-30B-A3B (Hybrid, MoE, Medium)</option>
+              <option value="Qwen/Qwen3-30B-A3B-Base">Qwen3-30B-A3B-Base (Base, MoE, Medium)</option>
+              <option value="Qwen/Qwen3-32B">Qwen3-32B (Hybrid, Dense, Medium)</option>
+              <option value="Qwen/Qwen3-8B" selected>Qwen3-8B (Hybrid, Dense, Small)</option>
+              <option value="Qwen/Qwen3-8B-Base">Qwen3-8B-Base (Base, Dense, Small)</option>
+            </optgroup>
+            <optgroup label="OpenAI (Reasoning)">
+              <option value="openai/gpt-oss-120b">gpt-oss-120b (MoE, Medium)</option>
+              <option value="openai/gpt-oss-20b">gpt-oss-20b (MoE, Small)</option>
+            </optgroup>
+            <optgroup label="DeepSeek">
+              <option value="deepseek-ai/DeepSeek-V3.1">DeepSeek-V3.1 (Hybrid, MoE, Large)</option>
+              <option value="deepseek-ai/DeepSeek-V3.1-Base">DeepSeek-V3.1-Base (Base, MoE, Large)</option>
+            </optgroup>
+            <optgroup label="Meta Llama">
+              <option value="meta-llama/Llama-3.1-70B">Llama-3.1-70B (Base, Dense, Large)</option>
+              <option value="meta-llama/Llama-3.3-70B-Instruct">Llama-3.3-70B-Instruct (Instruction, Dense, Large)</option>
+              <option value="meta-llama/Llama-3.1-8B">Llama-3.1-8B (Base, Dense, Small)</option>
+              <option value="meta-llama/Llama-3.1-8B-Instruct">Llama-3.1-8B-Instruct (Instruction, Dense, Small)</option>
+              <option value="meta-llama/Llama-3.2-3B">Llama-3.2-3B (Base, Dense, Compact)</option>
+              <option value="meta-llama/Llama-3.2-1B">Llama-3.2-1B (Base, Dense, Compact)</option>
+            </optgroup>
+            <optgroup label="NVIDIA Nemotron">
+              <option value="nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-BF16">Nemotron-3-Super-120B (Hybrid, MoE, Large)</option>
+              <option value="nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16">Nemotron-3-Nano-30B (Hybrid, MoE, Medium)</option>
+            </optgroup>
+            <optgroup label="Moonshot">
+              <option value="moonshotai/Kimi-K2-Thinking">Kimi-K2-Thinking (Reasoning, MoE, Large)</option>
+              <option value="moonshotai/Kimi-K2.5">Kimi-K2.5 (Reasoning + Vision, MoE, Large)</option>
+            </optgroup>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="sampler-path">Custom sampler path (optional)</label>
+        <input type="text" id="sampler-path" placeholder="tinker://...">
+        <div class="hint">For fine-tuned models. If filled, the model dropdown above is ignored.</div>
+      </div>
+
+      <details>
+        <summary>System Prompt</summary>
+        <textarea id="system-prompt" rows="3" placeholder="Optional system prompt..."></textarea>
+      </details>
+
+      <details>
+        <summary>Sampling Parameters</summary>
+        <div class="params-row">
+          <div class="param">
+            <label for="temperature">Temperature</label>
+            <input type="number" id="temperature" value="1.0" min="0" max="2" step="0.1">
+          </div>
+          <div class="param">
+            <label for="top-p">Top-p</label>
+            <input type="number" id="top-p" value="1.0" min="0" max="1" step="0.05">
+          </div>
+          <div class="param">
+            <label for="max-tokens">Max tokens</label>
+            <input type="number" id="max-tokens" value="512" min="1" max="32768" step="1">
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- Chat Area -->
+    <div class="chat-area">
+      <div class="messages" id="messages"></div>
+      <div class="input-area">
+        <textarea id="chat-input" rows="1" placeholder="Send a message..." disabled></textarea>
+        <button id="send-btn" disabled>Send</button>
+        <button id="stop-btn">Stop</button>
+      </div>
+    </div>
+
+    <div class="error-msg" id="error-msg"></div>
+
+    <!-- Bottom Actions -->
+    <div class="bottom-actions">
+      <button id="new-chat-btn">New Chat</button>
+      <button id="export-btn">Export Chat</button>
+    </div>
+  </div>
+
+<script>
+// --- State ---
+let messages = []; // { role: 'user'|'assistant', content: string, timestamp: number }
+let isGenerating = false;
+let abortController = null;
+
+// --- DOM refs ---
+const apiKeyInput = document.getElementById('api-key');
+const modelSelect = document.getElementById('model-select');
+const samplerPathInput = document.getElementById('sampler-path');
+const systemPromptInput = document.getElementById('system-prompt');
+const tempInput = document.getElementById('temperature');
+const topPInput = document.getElementById('top-p');
+const maxTokensInput = document.getElementById('max-tokens');
+const messagesContainer = document.getElementById('messages');
+const chatInput = document.getElementById('chat-input');
+const sendBtn = document.getElementById('send-btn');
+const stopBtn = document.getElementById('stop-btn');
+const newChatBtn = document.getElementById('new-chat-btn');
+const exportBtn = document.getElementById('export-btn');
+const errorMsg = document.getElementById('error-msg');
+
+const BASE_URL = 'https://tinker-proxy.maiush.workers.dev';
+
+// --- API key persistence (sessionStorage) ---
+const savedKey = sessionStorage.getItem('tinker-api-key');
+if (savedKey) apiKeyInput.value = savedKey;
+
+apiKeyInput.addEventListener('input', () => {
+  sessionStorage.setItem('tinker-api-key', apiKeyInput.value);
+  updateInputState();
+});
+
+// --- Sampler path disables model dropdown ---
+samplerPathInput.addEventListener('input', () => {
+  modelSelect.disabled = samplerPathInput.value.trim() !== '';
+});
+
+// --- Input state ---
+function updateInputState() {
+  const hasKey = apiKeyInput.value.trim() !== '';
+  const hasInput = chatInput.value.trim() !== '';
+  chatInput.disabled = !hasKey;
+  sendBtn.disabled = !hasKey || !hasInput || isGenerating;
+  chatInput.placeholder = hasKey ? 'Send a message...' : 'Enter an API key first';
+}
+
+chatInput.addEventListener('input', () => {
+  updateInputState();
+  autoResizeTextarea(chatInput);
+});
+
+function autoResizeTextarea(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 150) + 'px';
+}
+
+// --- Send message ---
+chatInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    if (!sendBtn.disabled) sendMessage();
+  }
+});
+
+sendBtn.addEventListener('click', sendMessage);
+
+function sendMessage() {
+  const text = chatInput.value.trim();
+  if (!text || isGenerating) return;
+
+  messages.push({ role: 'user', content: text, timestamp: Date.now() });
+  chatInput.value = '';
+  chatInput.style.height = 'auto';
+  updateInputState();
+  renderMessages();
+  generate();
+}
+
+// --- Stop generation ---
+stopBtn.addEventListener('click', () => {
+  if (abortController) abortController.abort();
+});
+
+// --- Generate (API call with streaming) ---
+async function generate() {
+  const apiKey = apiKeyInput.value.trim();
+  if (!apiKey) return showError('Please enter your Tinker API key.');
+
+  const model = samplerPathInput.value.trim() || modelSelect.value;
+  const systemPrompt = systemPromptInput.value.trim();
+
+  const apiMessages = [];
+  if (systemPrompt) apiMessages.push({ role: 'system', content: systemPrompt });
+  for (const msg of messages) {
+    apiMessages.push({ role: msg.role, content: msg.content });
+  }
+
+  const body = {
+    model,
+    messages: apiMessages,
+    temperature: parseFloat(tempInput.value) ?? 1.0,
+    top_p: parseFloat(topPInput.value) ?? 1.0,
+    max_tokens: parseInt(maxTokensInput.value) || 512,
+  };
+
+  isGenerating = true;
+  abortController = new AbortController();
+  hideError();
+  updateInputState();
+  sendBtn.style.display = 'none';
+  stopBtn.style.display = 'inline-block';
+
+  // Show spinner placeholder
+  showSpinner();
+
+  try {
+    const response = await fetch(`${BASE_URL}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify(body),
+      signal: abortController.signal,
+    });
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      const errText = errData.error?.message || errData.message || '';
+
+      if (response.status === 401) {
+        showError('Invalid API key. Please check your Tinker API key.');
+      } else if (response.status === 429) {
+        showError('Rate limit reached. Please wait a moment and try again.');
+      } else if (response.status === 400) {
+        showError(`Bad request: ${errText || 'Please check your parameters.'}`);
+      } else {
+        showError(`Error (${response.status}): ${errText || 'Something went wrong.'}`);
+      }
+      hideSpinner();
+      return;
+    }
+
+    const jsonResp = await response.json();
+    const content = jsonResp.choices?.[0]?.message?.content || '';
+
+    hideSpinner();
+    messages.push({ role: 'assistant', content, timestamp: Date.now() });
+    renderMessages();
+
+  } catch (err) {
+    hideSpinner();
+    if (err.name === 'AbortError') {
+      // User cancelled — nothing to show
+    } else if (err.message?.includes('Failed to fetch') || err instanceof TypeError) {
+      showError('Network error. This may be a CORS issue — the Tinker API may not allow browser requests. Try using a proxy or the Python SDK.');
+    } else {
+      showError(`Error: ${err.message}`);
+    }
+  } finally {
+    isGenerating = false;
+    abortController = null;
+    sendBtn.style.display = 'inline-block';
+    stopBtn.style.display = 'none';
+    updateInputState();
+  }
+}
+
+// --- Render messages ---
+function renderMessages() {
+  messagesContainer.innerHTML = '';
+
+  messages.forEach((msg, idx) => {
+    const div = document.createElement('div');
+    div.className = `message ${msg.role}-msg`;
+
+    const header = document.createElement('div');
+    header.className = 'message-header';
+
+    const roleSpan = document.createElement('span');
+    roleSpan.className = `message-role ${msg.role}`;
+    roleSpan.textContent = msg.role === 'user' ? 'You' : 'Assistant';
+    header.appendChild(roleSpan);
+
+    const actions = document.createElement('div');
+    actions.className = 'message-actions';
+
+    if (msg.role === 'user' && !isGenerating) {
+      const editBtn = document.createElement('button');
+      editBtn.textContent = 'Edit';
+      editBtn.addEventListener('click', () => startEdit(idx));
+      actions.appendChild(editBtn);
+    }
+
+    if (msg.role === 'assistant' && !isGenerating) {
+      const regenBtn = document.createElement('button');
+      regenBtn.textContent = 'Regenerate';
+      regenBtn.addEventListener('click', () => regenerate(idx));
+      actions.appendChild(regenBtn);
+    }
+
+    header.appendChild(actions);
+    div.appendChild(header);
+
+    const content = document.createElement('div');
+    content.className = 'message-content';
+    content.textContent = msg.content;
+
+    div.appendChild(content);
+    messagesContainer.appendChild(div);
+  });
+
+  scrollToBottom();
+}
+
+
+
+function showSpinner() {
+  const div = document.createElement('div');
+  div.className = 'spinner-msg';
+  div.id = 'loading-spinner';
+  div.innerHTML = '<div class="message-role">Assistant</div><div class="spinner-dots"><span></span><span></span><span></span></div>';
+  messagesContainer.appendChild(div);
+  scrollToBottom();
+}
+
+function hideSpinner() {
+  const spinner = document.getElementById('loading-spinner');
+  if (spinner) spinner.remove();
+}
+
+function scrollToBottom() {
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+// --- Edit user message ---
+function startEdit(idx) {
+  const msg = messages[idx];
+  const msgDiv = messagesContainer.querySelectorAll('.message')[idx];
+  if (!msgDiv) return;
+
+  const contentDiv = msgDiv.querySelector('.message-content');
+  const originalText = msg.content;
+
+  // Replace content with textarea
+  contentDiv.style.display = 'none';
+
+  const editArea = document.createElement('textarea');
+  editArea.className = 'edit-textarea';
+  editArea.value = originalText;
+  msgDiv.appendChild(editArea);
+
+  const editActions = document.createElement('div');
+  editActions.className = 'edit-actions';
+
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'save-btn';
+  saveBtn.textContent = 'Save & Regenerate';
+  saveBtn.addEventListener('click', () => {
+    const newText = editArea.value.trim();
+    if (!newText) return;
+    // Truncate messages after this one and update
+    messages = messages.slice(0, idx);
+    messages.push({ role: 'user', content: newText, timestamp: Date.now() });
+    renderMessages();
+    generate();
+  });
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.className = 'cancel-btn';
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.addEventListener('click', () => {
+    editArea.remove();
+    editActions.remove();
+    contentDiv.style.display = '';
+  });
+
+  editActions.appendChild(saveBtn);
+  editActions.appendChild(cancelBtn);
+  msgDiv.appendChild(editActions);
+
+  editArea.focus();
+  editArea.setSelectionRange(editArea.value.length, editArea.value.length);
+}
+
+// --- Regenerate assistant message ---
+function regenerate(idx) {
+  // Remove this assistant message and everything after it
+  messages = messages.slice(0, idx);
+  renderMessages();
+  generate();
+}
+
+// --- New Chat ---
+newChatBtn.addEventListener('click', () => {
+  if (messages.length > 0 && !confirm('Clear current chat?')) return;
+  messages = [];
+  renderMessages();
+  hideError();
+});
+
+// --- Export Chat ---
+exportBtn.addEventListener('click', () => {
+  const model = samplerPathInput.value.trim() || modelSelect.value;
+  const exportData = {
+    model,
+    system_prompt: systemPromptInput.value.trim() || null,
+    parameters: {
+      temperature: parseFloat(tempInput.value) || 0.7,
+      top_p: parseFloat(topPInput.value) || 0.9,
+      max_tokens: parseInt(maxTokensInput.value) || 2048,
+    },
+    messages: messages.map(m => ({ role: m.role, content: m.content, timestamp: m.timestamp })),
+    exported_at: new Date().toISOString(),
+  };
+
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const modelShort = model.split('/').pop() || 'chat';
+  const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  a.href = url;
+  a.download = `tinker-chat_${modelShort}_${ts}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+// --- Error display ---
+function showError(text) {
+  errorMsg.textContent = text;
+  errorMsg.classList.add('visible');
+}
+
+function hideError() {
+  errorMsg.textContent = '';
+  errorMsg.classList.remove('visible');
+}
+
+// --- Init ---
+updateInputState();
+</script>
+</body>
+</html>
