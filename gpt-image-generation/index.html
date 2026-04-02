@@ -263,6 +263,84 @@
       margin-top: 24px;
     }
 
+    /* ===== IMAGE INPUT ===== */
+
+    .image-input-area {
+      border: 2px dashed #d1d5db;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      color: #6b7280;
+      font-size: 14px;
+    }
+
+    .image-input-area:hover {
+      border-color: #2563eb;
+      background: #f9fafb;
+    }
+
+    .image-input-area.has-image {
+      border-style: solid;
+      border-color: #d1d5db;
+      cursor: default;
+      padding: 12px;
+    }
+
+    .image-input-area .upload-hint {
+      pointer-events: none;
+    }
+
+    .image-preview {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .image-preview img {
+      max-width: 120px;
+      max-height: 120px;
+      border-radius: 6px;
+      border: 1px solid #e5e7eb;
+      object-fit: contain;
+    }
+
+    .image-preview .preview-info {
+      flex: 1;
+      text-align: left;
+      font-size: 13px;
+      color: #374151;
+    }
+
+    .image-preview .preview-name {
+      font-weight: 500;
+      margin-bottom: 2px;
+      word-break: break-all;
+    }
+
+    .image-preview .preview-size {
+      color: #6b7280;
+    }
+
+    .remove-image {
+      background: none;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-family: inherit;
+      color: #6b7280;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .remove-image:hover {
+      background: #fef2f2;
+      color: #dc2626;
+      border-color: #dc2626;
+    }
+
     /* ===== RESPONSIVE ===== */
 
     @media screen and (max-width: 480px) {
@@ -324,6 +402,14 @@
             <option value="1536x1024">Landscape</option>
             <option value="1024x1536">Portrait</option>
           </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Reference Image (optional)</label>
+        <div class="image-input-area" id="image-input-area">
+          <input type="file" id="image-file-input" accept="image/*" style="display:none">
+          <div class="upload-hint" id="upload-hint">Click to upload or paste an image from clipboard</div>
         </div>
       </div>
 
@@ -398,8 +484,12 @@
     const generateBtn = document.getElementById('generate-btn');
 
     function validateForm() {
-      const valid = apiKeyInput.value.trim() && participantInput.value.trim() && promptInput.value.trim();
-      generateBtn.disabled = !valid;
+      const hasKey = apiKeyInput.value.trim();
+      const hasPid = participantInput.value.trim();
+      const hasPrompt = promptInput.value.trim();
+      const hasImage = !!inputImageFile;
+      // Need key + participant + (prompt or image or both)
+      generateBtn.disabled = !(hasKey && hasPid && (hasPrompt || hasImage));
     }
 
     apiKeyInput.addEventListener('input', validateForm);
@@ -452,6 +542,73 @@
     qualitySelect.addEventListener('change', updateCostEstimate);
     sizeSelect.addEventListener('change', updateCostEstimate);
 
+    // ===== IMAGE INPUT =====
+    let inputImageFile = null; // File object for the attached image
+
+    const imageInputArea = document.getElementById('image-input-area');
+    const imageFileInput = document.getElementById('image-file-input');
+    const uploadHint = document.getElementById('upload-hint');
+
+    imageInputArea.addEventListener('click', function() {
+      if (!inputImageFile) imageFileInput.click();
+    });
+
+    imageFileInput.addEventListener('change', function() {
+      if (this.files && this.files[0]) attachImage(this.files[0]);
+    });
+
+    // Clipboard paste — listen on the whole document
+    document.addEventListener('paste', function(e) {
+      const items = e.clipboardData && e.clipboardData.items;
+      if (!items) return;
+      for (const item of items) {
+        if (item.type.startsWith('image/')) {
+          e.preventDefault();
+          attachImage(item.getAsFile());
+          return;
+        }
+      }
+    });
+
+    function attachImage(file) {
+      if (!file || !file.type.startsWith('image/')) return;
+      inputImageFile = file;
+      imageInputArea.classList.add('has-image');
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const sizeKB = Math.round(file.size / 1024);
+        imageInputArea.innerHTML =
+          '<div class="image-preview">' +
+            '<img src="' + e.target.result + '" alt="Preview">' +
+            '<div class="preview-info">' +
+              '<div class="preview-name">' + (file.name || 'Pasted image') + '</div>' +
+              '<div class="preview-size">' + sizeKB + ' KB</div>' +
+            '</div>' +
+            '<button class="remove-image" type="button">Remove</button>' +
+          '</div>';
+        imageInputArea.querySelector('.remove-image').addEventListener('click', function(ev) {
+          ev.stopPropagation();
+          removeImage();
+        });
+      };
+      reader.readAsDataURL(file);
+      validateForm();
+    }
+
+    function removeImage() {
+      inputImageFile = null;
+      imageFileInput.value = '';
+      imageInputArea.classList.remove('has-image');
+      imageInputArea.innerHTML = '<input type="file" id="image-file-input" accept="image/*" style="display:none">' +
+        '<div class="upload-hint" id="upload-hint">Click to upload or paste an image from clipboard</div>';
+      // Re-bind the file input
+      document.getElementById('image-file-input').addEventListener('change', function() {
+        if (this.files && this.files[0]) attachImage(this.files[0]);
+      });
+      validateForm();
+    }
+
     // ===== IMAGE GENERATION =====
     let currentImageB64 = null;
     let currentPromptText = null;
@@ -472,21 +629,43 @@
       document.getElementById('error-msg').textContent = '';
 
       try {
-        const response = await fetch('https://api.openai.com/v1/images/generations', {
-          method: 'POST',
-          headers: {
-            'Authorization': 'Bearer ' + apiKey,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            model: model,
-            prompt: prompt,
-            n: 1,
-            size: size,
-            quality: quality,
-            output_format: 'png'
-          })
-        });
+        let response;
+
+        if (inputImageFile) {
+          // Use the edits endpoint with FormData
+          const formData = new FormData();
+          formData.append('image', inputImageFile);
+          formData.append('prompt', prompt);
+          formData.append('model', model);
+          formData.append('n', '1');
+          formData.append('size', size);
+          formData.append('quality', quality);
+
+          response = await fetch('https://api.openai.com/v1/images/edits', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer ' + apiKey,
+            },
+            body: formData
+          });
+        } else {
+          // Use the generations endpoint with JSON
+          response = await fetch('https://api.openai.com/v1/images/generations', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer ' + apiKey,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              model: model,
+              prompt: prompt,
+              n: 1,
+              size: size,
+              quality: quality,
+              output_format: 'png'
+            })
+          });
+        }
 
         if (!response.ok) {
           const err = await response.json().catch(function() { return {}; });
@@ -549,6 +728,7 @@
         quality: qualitySelect.value,
         size: sizeSelect.value,
         prompt: currentPromptText,
+        used_reference_image: !!inputImageFile,
         image_base64: currentImageB64
       };
       const blob = new Blob([JSON.stringify(session, null, 2)], { type: 'application/json' });
